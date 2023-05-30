@@ -4,7 +4,7 @@ import requests
 import json
 import os
 import urllib3
-from config import MC_PATH
+from config.constants import MC_PATH,MANIFEST_DIRECTORY
 
 # Variable de prueba para distintas funcionalidades
 http = urllib3.PoolManager()
@@ -12,6 +12,15 @@ http = urllib3.PoolManager()
 # URL del archivo de manifiestos de todas las versiones del juego
 MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
+
+
+def check_exists(version):
+
+    if os.path.exists(os.path.join(MANIFEST_DIRECTORY, version)):
+        print("existe: "+ os.path.join(MANIFEST_DIRECTORY, version))
+        return True
+
+    return False
 
 def get_json(url):
     """
@@ -122,15 +131,32 @@ def get_minecraft_version(version="1.19.4"):
         release_data = get_json(releases[version])
         launcher_url = release_data["downloads"]["client"]["url"]
 
-        # Crea la carpeta de versiones y su versión
-        create_directory(os.path.join(MC_PATH, "versions", version))
+        if (check_exists(version) == False):
+            print("no existe")
+            # Crea la carpeta de versiones y su versión
+            create_directory(os.path.join(MC_PATH, "versions", version))
 
-        # Guarda el archivo de manifiesto de la versión
-        manifest_path = os.path.join(MC_PATH, "versions", version, version + ".json")
-        save_json(release_data, manifest_path)
+            # Guarda el archivo de manifiesto de la versión
+            manifest_path = os.path.join(MC_PATH, "versions", version, version + ".json")
+            save_json(release_data, manifest_path)
 
-        # Descarga el archivo launcher.jar
-        launcher_path = os.path.join(MC_PATH, "versions", version, version + ".jar")
-        download_file(launcher_url, launcher_path)
+            # Descarga el archivo launcher.jar
+            launcher_path = os.path.join(MC_PATH, "versions", version, version + ".jar")
+            download_file(launcher_url, launcher_path)
     else:
         print("La versión ingresada no es una versión de lanzamiento.")
+
+
+
+
+def get_versions():
+    manifest = get_json(MANIFEST_URL)
+    releases = []
+
+    # Coge todas las versiones de "release" del archivo de manifiestos
+    for version in manifest["versions"]:
+        if version["type"] == "release":
+            releases.append(version["id"])
+    return releases
+
+

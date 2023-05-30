@@ -15,10 +15,6 @@ class JVM:
         self.classpath_separator =";"
         self.OS_extra = ""
 
-    
-
-
-
         with open (manifest, 'r') as file:
             args = json.loads(file.read())
             
@@ -38,20 +34,3 @@ class JVM:
         res  +="\n\nLauncher Version: " + self.launcher_version
         res  +="\n\nOS extra: " + self.OS_extra
         return res
-
-
-
-
-
-
-
-
-
-
-
-# print(json.dumps(args, indent=4))
-
-
-
-
-
